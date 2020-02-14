@@ -3524,8 +3524,29 @@ void turn_report_allocation_set(void *a, turn_time_t lifetime, int refresh)
 					} else {
 						snprintf(key,sizeof(key),"turn/user/%s/allocation/%018llu/status",(char*)ss->username, (unsigned long long)ss->id);
 					}
-					send_message_to_redis(e->rch, "set", key, "%s lifetime=%lu", status, (unsigned long)lifetime);
-					send_message_to_redis(e->rch, "publish", key, "%s lifetime=%lu", status, (unsigned long)lifetime);
+					struct turn_session_info tsi;
+					turn_session_info_init(&tsi);
+					turn_session_info_copy_from(&tsi, ss);
+					send_message_to_redis(e->rch, "set", key, "%s lifetime=%lu client_proto=%s client_addr=%s server_addr=%s relay_proto=%s relay_addr=%s tls_method=%s tls_cipher=%s", 
+						status,
+						(unsigned long)lifetime,
+						socket_type_name(tsi.client_protocol),
+						tsi.remote_addr_data.saddr,
+						tsi.local_addr_data.saddr,
+						socket_type_name(tsi.peer_protocol),
+						tsi.relay_addr_data_ipv4.saddr,
+						tsi.tls_method,
+						tsi.tls_cipher);
+					send_message_to_redis(e->rch, "publish", key, "%s lifetime=%lu client_proto=%s client_addr=%s server_addr=%s relay_proto=%s relay_addr=%s tls_method=%s tls_cipher=%s", 
+						status,
+						(unsigned long)lifetime,
+						socket_type_name(tsi.client_protocol),
+						tsi.remote_addr_data.saddr,
+						tsi.local_addr_data.saddr,
+						socket_type_name(tsi.peer_protocol),
+						tsi.relay_addr_data_ipv4.saddr,
+						tsi.tls_method,
+						tsi.tls_cipher);
 				}
 #endif
 			}
