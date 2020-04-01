@@ -2,8 +2,15 @@ Redis database for allocation statuses and for event notifications
 has the following schema:
 
 1) The allocation status is stored as keys "turn/user/<username>/allocation/<id>/status", 
-and the values may be "new lifetime=..." or "refreshed lifetime=...". There may be multiple 
-allocations under the same user name.
+and the values may be either
+
+  "new lifetime=... client_proto=... client_addr=... server_addr=... relay_proto=... relay_addr=... tls_method=... tls_cipher=..." 
+
+or
+
+  "refreshed lifetime=... client_proto=... client_addr=... server_addr=... relay_proto=... relay_addr=... tls_method=... tls_cipher=...". 
+  
+There may be multiple allocations under the same user name.
 
 2) Additionally, the same information is reported through the "publish" mechanism. 
 The same keys are used and the same status is reported, with the addition of status "deleted".
